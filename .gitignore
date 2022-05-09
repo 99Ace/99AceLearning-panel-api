@@ -10,4 +10,5 @@ node_modules/
 .vscode
 database.json
 format.html
-newfile.js
+dbCommands.js
+sessions

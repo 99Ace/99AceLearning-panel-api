@@ -13,12 +13,14 @@ const getHashedPassword = (password) => {
     const hash = sha256.update(password).digest('base64');
     return hash;
 }
-
+// import in the CheckIfAuthenticated middleware
+const { checkIfAuthenticated } = require('../middlewares');
 
 //  #2 Add a new route to the Express router
 // Profile Route
 router.get('/', (req, res) => {
     const user = req.session.user;
+    console.log(user)
     if (!user) {
         req.flash('error_messages', 'You do not have permission to view this page');
         res.redirect('/auth/login');
@@ -30,6 +32,9 @@ router.get('/', (req, res) => {
 })
 // Login Routes
 router.get('/login', (req, res) => {
+    console.log("Login Route")
+    console.log(req.session.user)
+
     const loginForm = createLoginForm();
     res.render('auth/login.hbs', {
         'form': loginForm.toHTML(bootstrapField)
@@ -48,7 +53,9 @@ router.post('/login', async (req, res) => {
                 require: false
             }
             );
-
+            console.log(user.get('username'))
+            console.log(form.data)
+            console.log( getHashedPassword(form.data.password))
             if (!user) {
                 req.flash("error_messages", "Sorry, the authentication details you provided does not work.")
                 res.redirect('/auth/login');
@@ -56,7 +63,6 @@ router.post('/login', async (req, res) => {
                 // check if the password matches
                 if (user.get('password') === getHashedPassword(form.data.password)) {
                     // add to the session that login succeed
-
                     // store the user details
                     req.session.user = {
                         id: user.get('id'),
@@ -79,8 +85,9 @@ router.post('/login', async (req, res) => {
     })
 })
 // Logout Route
-router.get('/logout', (req, res) => {
+router.get('/logout', checkIfAuthenticated, (req, res) => {
     req.session.user = null;
+    console.log("Logout Route")
     req.flash('success_messages', "Goodbye");
     res.redirect('/auth/login');
 })

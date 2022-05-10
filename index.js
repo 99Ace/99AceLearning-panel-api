@@ -7,6 +7,9 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const FileStore = require('session-file-store')(session);
 
+// import in the CheckIfAuthenticated middleware
+const { checkIfAuthenticated } = require('./middlewares');
+
 require("dotenv").config();
 
 // create an instance of express app
@@ -44,22 +47,22 @@ const authRoutes = require('./routes/auth');
 app.use(flash())
 // Register Flash middleware
 app.use(function (req, res, next) {
-    res.locals.success_messages = req.flash("success_messages");
-    res.locals.error_messages = req.flash("error_messages");
-    next();
+  res.locals.success_messages = req.flash("success_messages");
+  res.locals.error_messages = req.flash("error_messages");
+  next();
 });
 
 async function main() {
-    
-    // use the routes imported
-    app.use('/', landingRoutes);
-    app.use('/auth', authRoutes);
 
-    
-    
-    app.listen(3000, () => {
-        console.log("Server has started");
-      });
+  // use the routes imported
+  app.use('/', landingRoutes);
+  app.use('/auth', authRoutes);
+
+
+
+  app.listen(3000, () => {
+    console.log("Server has started");
+  });
 }
 
 main();
